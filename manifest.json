@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "icons": {
+    "128": "logo_128.png"
+  },
+  "content_scripts": [
+    {
+      "exclude_globs": [  ],
+      "include_globs": [ "*" ],
+      "js": [ "leadfinder.main.js" ],
+      "matches": [
+        "https://www.google.com/search*",
+        "https://www.google.com/webhp*"
+       ],
+      "run_at": "document_end"
+    },
+    {
+      "exclude_globs": [  ],
+      "include_globs": [ "*" ],
+      "js": [ "leadfinder.xing.js" ],
+      "matches": [
+        "https://webcache.googleusercontent.com/search*"
+       ],
+      "run_at": "document_end"
+    }
+  ],
+  "converted_from_user_script": true,
+  "description": "Lead Finder Development Extenion",
+  "name": "Lead Finder DEV",
+  "version": "1"
+}
