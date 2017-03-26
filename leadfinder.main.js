@@ -4,8 +4,9 @@
   const send = (title) => {
     let parts = title.split(' - ');
     const name = parts[0].trim();
+    const position = parts[1].trim();
     const company_name = parts[2].split(' | ')[0].trim();
-    const entry = { name, company_name };
+    const entry = { name, position, company_name };
     const host = 'https://leadfinder.patricklerner.com';
 
     return fetch(`${host}/api/v1/entries`, {
