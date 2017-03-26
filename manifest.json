@@ -10,9 +10,13 @@
       "js": [ "leadfinder.main.js" ],
       "matches": [
         "https://www.google.com/search*",
-        "https://www.google.com/webhp*"
+        "https://www.google.de/search*",
+        "https://www.google.co.uk/search*",
+        "https://www.google.com/webhp*",
+        "https://www.google.de/webhp*",
+        "https://www.google.co.uk/webhp*"
        ],
-      "run_at": "document_end"
+      "run_at": "document_start"
     },
     {
       "exclude_globs": [  ],
@@ -27,5 +31,6 @@
   "converted_from_user_script": true,
   "description": "Lead Finder Development Extenion",
   "name": "Lead Finder DEV",
-  "version": "1"
+  "version": "2",
+  "update_url": "http://myhost.com/mytestextension/updates.xml"
 }

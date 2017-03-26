@@ -3,10 +3,9 @@
 
   const send = (title) => {
     let parts = title.split(' - ');
-    const first_name = parts[0].split(' ')[0].trim();
-    const last_name = parts[0].split(' ').splice(1).join(' ').trim();
+    const name = parts[0].trim();
     const company_name = parts[2].split(' | ')[0].trim();
-    const entry = { first_name, last_name, company_name };
+    const entry = { name, company_name };
     const host = 'https://leadfinder.patricklerner.com';
 
     return fetch(`${host}/api/v1/entries`, {
@@ -40,28 +39,30 @@
     });
   };
 
-  let sheet = window.document.styleSheets[0];
-  sheet.insertRule(`.LeadFinder {
-    background-color: #3bbf91;
-    color: white;
-    padding: .2rem .5rem;
-    display: inline-block;
-    font-size: 14px;
-    margin-left: 29px;
-    text-decoration: none !important;
-    cursor: pointer;
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translateX(100%);
-  }`, sheet.cssRules.length);
-  sheet.insertRule(`.LeadFinder:hover {
-    background-color: #4fc59c;
-    text-decoration: none !important;
-  }`, sheet.cssRules.length);
-
+  let insertCSS = _ => {
+    let sheet = window.document.styleSheets[0];
+    sheet.insertRule(`.LeadFinder {
+      background-color: #36c4ac;
+      color: white;
+      padding: 0.7rem 1rem;
+      display: inline-block;
+      font-size: 14px;
+      margin-left: 29px;
+      text-decoration: none !important;
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translateX(100%);
+    }`, sheet.cssRules.length);
+    sheet.insertRule(`.LeadFinder:hover {
+      background-color: #4acab4;
+      text-decoration: none !important;
+    }`, sheet.cssRules.length);
+  }
 
   let addButtons = _ => {
+    insertCSS();
     document.querySelectorAll('cite').forEach(element => {
       const url = element.innerHTML;
 
@@ -82,9 +83,13 @@
             );
           }
 
-          submit(title, win).then(_ => {
-            alert('Erfolgreich hinzugefügt.');
-            link.remove();
+          submit(title, win).then(res => res.json()).then(data => {
+            if (data.errors) {
+              alert('Konnte nicht hinzugefügt werden.');
+            } else {
+              alert('Erfolgreich hinzugefügt.');
+              link.remove();
+            }
           }, err => {
             alert('Konnte nicht hinzugefügt werden.');
           });
@@ -95,5 +100,5 @@
     });
   };
 
-  setTimeout(addButtons, 5000);
+  document.addEventListener('DOMContentLoaded', addButtons, false);
 })();
