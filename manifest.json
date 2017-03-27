@@ -31,6 +31,6 @@
   "converted_from_user_script": true,
   "description": "Lead Finder Development Extenion",
   "name": "Lead Finder DEV",
-  "version": "2",
-  "update_url": "http://myhost.com/mytestextension/updates.xml"
+  "version": "3",
+  "update_url": "https://leadfinder.patricklerner.com/extension/updates.xml"
 }
