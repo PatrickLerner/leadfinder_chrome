@@ -1,12 +1,20 @@
 (_ => {
   'use strict';
 
-  const send = (title) => {
-    let parts = title.split(' - ');
+  const htmlDecode = (input) => {
+    const e = document.createElement('div');
+    e.innerHTML = input;
+    return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+  }
+
+  const send = (options) => {
+    const { title, url } = options;
+    let parts = htmlDecode(title).split(' - ');
     const name = parts[0].trim();
     const position = parts[1].trim();
     const company_name = parts[2].split(' | ')[0].trim();
-    const entry = { name, position, company_name };
+    const urls = [url];
+    const entry = { name, position, company_name, urls };
     const host = 'https://leadfinder.patricklerner.com';
 
     return fetch(`${host}/api/v1/entries`, {
@@ -20,16 +28,18 @@
     });
   };
 
-  const submit = (title, win) => {
+  const submit = (options) => {
+    const { win, url, title } = options;
+
     return new Promise((res, err) => {
       if (title.indexOf('...') === -1) {
-        send(title).then(res, err);
+        send({ title, url }).then(res, err);
       } else {
         const xingTitle = event => {
           if (event.data.type == 'xingTitle') {
             window.removeEventListener('message', xingTitle, false);
             win.close();
-            send(event.data.title).then(res, err);
+            send({ title: event.data.title, url }).then(res, err);
           }
         };
         window.addEventListener('message', xingTitle, false);
@@ -84,7 +94,7 @@
             );
           }
 
-          submit(title, win).then(res => res.json()).then(data => {
+          submit({ title, win, url }).then(res => res.json()).then(data => {
             if (data.errors) {
               alert('Konnte nicht hinzugefügt werden.');
             } else {
