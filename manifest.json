@@ -29,8 +29,7 @@
     }
   ],
   "converted_from_user_script": true,
-  "description": "Lead Finder Development Extenion",
-  "name": "Lead Finder DEV",
-  "version": "3",
-  "update_url": "https://leadfinder.patricklerner.com/extension/updates.xml"
+  "description": "Lead Finder",
+  "name": "Lead Finder",
+  "version": "3"
 }
