@@ -1,6 +1,8 @@
 (_ => {
   'use strict';
 
+  let notyf = null;
+
   const htmlDecode = (input) => {
     const e = document.createElement('div');
     e.innerHTML = input;
@@ -101,6 +103,8 @@
   }
 
   const addButtons = _ => {
+    notyf = new Notyf();
+
     insertCSS();
     document.querySelectorAll('cite').forEach(element => {
       const url = element.innerHTML;
@@ -117,13 +121,13 @@
 
           submitLinkedIn({ title, subText, url }).then(res => res.json()).then(data => {
             if (data.errors) {
-              alert('Konnte nicht hinzugefügt werden.');
+              notyf.alert('Could not save lead.');
             } else {
-              alert('Erfolgreich hinzugefügt.');
+              notyf.confirm('Successfully added lead.');
               link.remove();
             }
           }, err => {
-            alert('Konnte nicht hinzugefügt werden.');
+            notyf.alert('Could not save lead.');
           });
         });
       } else if (url.match(/^https?:\/\/(www\.)?xing.com\/profile\//)) {
@@ -142,9 +146,9 @@
 
           submitXing({ title, win, url }).then(res => res.json()).then(data => {
             if (data.errors) {
-              alert('Konnte nicht hinzugefügt werden.');
+              notyf.alert('Could not save lead.');
             } else {
-              alert('Erfolgreich hinzugefügt.');
+              notyf.confirm('Successfully added lead.');
               link.remove();
             }
           }, err => {

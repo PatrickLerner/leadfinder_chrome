@@ -7,7 +7,8 @@
     {
       "exclude_globs": [  ],
       "include_globs": [ "*" ],
-      "js": [ "leadfinder.main.js" ],
+      "css": [ "vendor/notyf.min.css" ],
+      "js": [ "vendor/notyf.min.js", "leadfinder.main.js" ],
       "matches": [
         "https://www.google.com/search*",
         "https://www.google.de/search*",
@@ -27,6 +28,10 @@
        ],
       "run_at": "document_end"
     }
+  ],
+  "web_accessible_resources": [
+    "vendor/notyf.min.css",
+    "vendor/notyf.min.js"
   ],
   "converted_from_user_script": true,
   "description": "Lead Finder",
