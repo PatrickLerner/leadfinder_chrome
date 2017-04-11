@@ -7,14 +7,7 @@
     return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
   }
 
-  const send = (options) => {
-    const { title, url } = options;
-    let parts = htmlDecode(title).split(' - ');
-    const name = parts[0].trim();
-    const position = parts[1].trim();
-    const company_name = parts[2].split(' | ')[0].trim();
-    const urls = [url];
-    const entry = { name, position, company_name, urls };
+  const send = (entry, url) => {
     const host = 'https://leadfinder.patricklerner.com';
 
     return fetch(`${host}/api/v1/entries`, {
@@ -28,18 +21,45 @@
     });
   };
 
-  const submit = (options) => {
+  const sendXing = (options) => {
+    const { title, url } = options;
+    let parts = htmlDecode(title).split(' - ');
+    const name = parts[0].trim();
+    const position = parts[1].trim();
+    const company_name = parts[2].split(' | ')[0].trim();
+    const urls = [url];
+    const entry = { name, position, company_name, urls };
+
+    return send(entry, url);
+  };
+
+  const submitLinkedIn = (options) => {
+    return new Promise((res, err) => {
+      const { title, subText, url } = options;
+      const name = htmlDecode(title).split('|')[0].trim();
+      const parts = htmlDecode(subText).split(' - ');
+      if (parts.length != 3) { return err(); }
+      let position = parts[1].trim();
+      let company_name = parts[2].trim();
+      const urls = [url];
+      const entry = { name, position, company_name, urls };
+
+      return send(entry, url).then(res, err);
+    });
+  };
+
+  const submitXing = (options) => {
     const { win, url, title } = options;
 
     return new Promise((res, err) => {
       if (title.indexOf('...') === -1) {
-        send({ title, url }).then(res, err);
+        sendXing({ title, url }).then(res, err);
       } else {
         const xingTitle = event => {
           if (event.data.type == 'xingTitle') {
             window.removeEventListener('message', xingTitle, false);
             win.close();
-            send({ title: event.data.title, url }).then(res, err);
+            sendXing({ title: event.data.title, url }).then(res, err);
           }
         };
         window.addEventListener('message', xingTitle, false);
@@ -50,7 +70,7 @@
     });
   };
 
-  let insertCSS = _ => {
+  const insertCSS = _ => {
     let sheet = window.document.styleSheets[0];
     sheet.insertRule(`.LeadFinder {
       background-color: #36c4ac;
@@ -72,29 +92,30 @@
     }`, sheet.cssRules.length);
   }
 
-  let addButtons = _ => {
+  const addLink = container => {
+    const link = document.createElement('A');
+    link.classList.add('LeadFinder');
+    link.appendChild(document.createTextNode('Add to Lead Finder'));
+    container.appendChild(link);
+    return link;
+  }
+
+  const addButtons = _ => {
     insertCSS();
     document.querySelectorAll('cite').forEach(element => {
       const url = element.innerHTML;
+      const container = element.parentElement.parentElement.parentElement.parentElement;
 
-      if (url.match(/^https?:\/\/(www\.)?xing.com\/profile\//)) {
-        const container = element.parentElement.parentElement.parentElement.parentElement;
-
-        const link = document.createElement('A');
-        link.classList.add('LeadFinder');
-        link.addEventListener('click', _ => {
+      if (url.match(/^https?:\/\/([^\.]*\.)?linkedin.com\/in\//)) {
+        const hasSubText = container.querySelectorAll('.slp').length > 0;
+        if (!hasSubText) { return; }
+        const subText = container.querySelectorAll('.slp')[0].innerHTML;
+        if (subText.split(' - ').length !== 3) { return; }
+        const link = addLink(container);
+        link.addEventListener('click', () => {
           const title = container.firstChild.firstChild.innerHTML;
-          let win = null;
-          if (title.indexOf('...') !== -1) {
-            const url = container.querySelectorAll('.action-menu-item')[0].children[0].href;
-            win = window.open(
-              `${url}&vwsrc=1`, '_blank',
-              'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,' +
-              'left=10000,top=10000, width=10,height=10,visible=none', ''
-            );
-          }
 
-          submit({ title, win, url }).then(res => res.json()).then(data => {
+          submitLinkedIn({ title, subText, url }).then(res => res.json()).then(data => {
             if (data.errors) {
               alert('Konnte nicht hinzugefügt werden.');
             } else {
@@ -105,8 +126,31 @@
             alert('Konnte nicht hinzugefügt werden.');
           });
         });
-        link.appendChild(document.createTextNode('Add to Lead Finder'));
-        container.appendChild(link);
+      } else if (url.match(/^https?:\/\/(www\.)?xing.com\/profile\//)) {
+        const link = addLink(container);
+        link.addEventListener('click', () => {
+          const title = container.firstChild.firstChild.innerHTML;
+          let win = null;
+          if (title.indexOf('...') !== -1) {
+            const winUrl = container.querySelectorAll('.action-menu-item')[0].children[0].href;
+            win = window.open(
+              `${winUrl}&vwsrc=1`, '_blank',
+              'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,' +
+              'left=10000,top=10000, width=10,height=10,visible=none', ''
+            );
+          }
+
+          submitXing({ title, win, url }).then(res => res.json()).then(data => {
+            if (data.errors) {
+              alert('Konnte nicht hinzugefügt werden.');
+            } else {
+              alert('Erfolgreich hinzugefügt.');
+              link.remove();
+            }
+          }, err => {
+            alert('Konnte nicht hinzugefügt werden.');
+          });
+        });
       }
     });
   };
